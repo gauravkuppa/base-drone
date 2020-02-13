@@ -1,19 +1,27 @@
-// clamping, back calculation, observer approach
-void pid(float estimated-state) {
-    
-    float motorRPMHighThreshold, motorRPMLowThreshold; // set these values to a little lower than actual motor RPM values
-    bool saturated = false;
-    bool allowIntegration = true;
+struct S_PID{
     float k_p;
     float k_i;
     float k_d;
 
-    float error = 0; // desired_state - estimated_state; 
-    float p = k_p * error;
-    float i = k_i * integral(error); // how do i do an integral in C? best way?
-    float d = k_d * derivative(error); // how do i do a derivative in C, best way? efficiency?
+    float p;
+    float i;
+    float d;
+};
 
-    float newState = p + i + d;
+
+// clamping, back calculation, observer approach
+void updatePid(S_PID *pid, float estimated-state) {
+    
+    float motorRPMHighThreshold, motorRPMLowThreshold; // set these values to a little lower than actual motor RPM values
+    bool saturated = false;
+    bool allowIntegration = true;
+
+    float error = 0; // desired_state - estimated_state; 
+    pid->p = pid->k_p * error;
+    pid->i = pid->k_i * integral(error); // how do i do an integral in C? best way?
+    pid->d = pid->k_d * derivative(error); // how do i do a derivative in C, best way? efficiency?
+
+    float newState = pid->p + pid->i + pid->d;
 
     // clamping for anti-windup integration
 
