@@ -14,7 +14,6 @@ void PID::tuneParameters(float input_k_p, float input_k_i, float input_k_d) {
 
 void PID::updatePID(float expected_state, float measured_state) {
     float motorRPMHighThreshold, motorRPMLowThreshold; // set these values to a little lower than actual motor RPM values
-    bool saturated = false;
     bool allowIntegration = true;
 
     float error = expected_state - measured_state;
@@ -33,20 +32,21 @@ void PID::updatePID(float expected_state, float measured_state) {
         } 
     }
 
-    float error = 0; // desired_state - estimated_state; 
+    // reset current_state
+    this->current_state = 0;
+    
     this->p = this->k_p * error;
-    this->i = this->k_i * integral(error); // how do i do an integral in C? best way?
+    if(allowIntegration) {
+        this->i = this->k_i * integral(error); // how do i do an integral in C? best way?
+    } else {
+        this->i = 0;
+    }
+
+    // derivative path enlarges values of noise
+    // derivative --> low pass filter
+    // use laplace transform function?
     this->d = this->k_d * derivative(error); // how do i do a derivative in C, best way? efficiency?
 
     this->current_state = this->p + this->i + this->d;
 
-    
-
-
-    // TODO: if not allowIntegration, then what?
-
-
-    // derivative path enlarges values of noise
-    // derivative --> low pass filter
-    // use laplace transform function??
 }
