@@ -1,41 +1,46 @@
-struct S_PID{
-    float k_p;
-    float k_i;
-    float k_d;
+#include <stdio.h>
+#include "pid.h"
 
-    float p;
-    float i;
-    float d;
-};
+PID::PID(float motorRPMHighThreshold, float motorRPMLowThreshold) {
+    this->motorRPMHighThreshold = motorRPMHighThreshold;
+    this->motorRPMLowThreshold = motorRPMLowThreshold;
+}
 
+void PID::tuneParameters(float input_k_p, float input_k_i, float input_k_d) {
+    this->k_p = input_k_p;
+    this->k_i = input_k_i;
+    this->k_d = input_k_d;
+}
 
-// clamping, back calculation, observer approach
-void updatePid(S_PID *pid, float estimated-state) {
-    
+void PID::updatePID(float expected_state, float measured_state) {
     float motorRPMHighThreshold, motorRPMLowThreshold; // set these values to a little lower than actual motor RPM values
     bool saturated = false;
     bool allowIntegration = true;
 
-    float error = 0; // desired_state - estimated_state; 
-    pid->p = pid->k_p * error;
-    pid->i = pid->k_i * integral(error); // how do i do an integral in C? best way?
-    pid->d = pid->k_d * derivative(error); // how do i do a derivative in C, best way? efficiency?
-
-    float newState = pid->p + pid->i + pid->d;
+    float error = expected_state - measured_state;
 
     // clamping for anti-windup integration
 
-    if (newState > motorRPMHighThreshold) {
-        newState = motorRPMHighThreshold;
+    if (this->current_state > motorRPMHighThreshold) {
+        this->current_state = motorRPMHighThreshold;
         if (error > 0) {
             allowIntegration = false;
         }
-    } else if (newState < motorRPMLowThreshold) {
-        newState = motorRPMLowThreshold;
+    } else if (this->current_state < motorRPMLowThreshold) {
+        this->current_state = motorRPMLowThreshold;
         if (error < 0) {
             allowIntegration = false;
         } 
     }
+
+    float error = 0; // desired_state - estimated_state; 
+    this->p = this->k_p * error;
+    this->i = this->k_i * integral(error); // how do i do an integral in C? best way?
+    this->d = this->k_d * derivative(error); // how do i do a derivative in C, best way? efficiency?
+
+    this->current_state = this->p + this->i + this->d;
+
+    
 
 
     // TODO: if not allowIntegration, then what?
@@ -44,11 +49,4 @@ void updatePid(S_PID *pid, float estimated-state) {
     // derivative path enlarges values of noise
     // derivative --> low pass filter
     // use laplace transform function??
-
-
-    
-
-
-
-
 }
