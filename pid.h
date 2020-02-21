@@ -6,11 +6,8 @@ class PID{
         double last_time;
         float last_error;
         float err_sum;
-<<<<<<< HEAD
-=======
         float last_filtered_error = NULL;
         float alpha = 0.4; // the higher the value of alpha, the less depenecy the filtered_d has on older values
->>>>>>> 07d1c0fe20b337239da00f206956e6abc78f6ce7
 
         float expected_state, measured_state; // setpoint, input and output
 
