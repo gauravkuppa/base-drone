@@ -59,14 +59,6 @@ void PID::computePID(float expected_state, float measured_state) {
             this->measured_state = this->motorRPMLowThreshold;
         }
 
-    // reset current_state
-    
-    /**if(allowIntegration) {
-        this->i = this->k_i * integral(error); // how do i do an integral in C? best way? // also, what is tau value versus time
-    } else {
-        this->i = 0;
-    }**/
-
         // keep track of some variables
         this->last_filtered_error = filtered_d;
         this->last_error = error;
