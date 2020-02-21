@@ -5,6 +5,8 @@ class PID{
         double last_time;
         float last_error;
         float err_sum;
+        float last_filtered_error = NULL;
+        float alpha = 0.4;
 
         float expected_state, measured_state; // setpoint, input and output
 
