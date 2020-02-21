@@ -1,18 +1,17 @@
 class PID{
     public:
-        float k_p;
-        float k_i;
-        float k_d;
+        float k_p, k_i, k_d;
 
-        float p;
-        float i;
-        float d;
+        double last_time;
+        float last_error;
+        float err_sum;
 
-        float current_state;
+        float expected_state, measured_state; // setpoint, input and output
+
         float motorRPMHighThreshold;
         float motorRPMLowThreshold;
 
         PID(float motorRPMHighThreshold, float motorRPMLowThreshold);
         void tuneParameters(float input_k_p, float input_k_i, float input_k_d);
-        void updatePID(float expected_state, float measured_state);
+        void computePID(float expected_state, float measured_state);
 };
