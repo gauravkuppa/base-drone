@@ -21,4 +21,5 @@ class PID{
         void computePID(float expected_state, float measured_state);
         void setTunings(float input_k_p, float input_k_i, float input_k_d);
         void setSampleTime(float NewSampleTime);
+        void setMode(int Mode);
 };

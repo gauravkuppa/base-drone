@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <chrono>
 #include "pid.h"
-
+#define MAN 0 //Define if manual or in autonomous mode
+#define AUTO 1
+bool inAutomatic = false;
 using namespace std;
 
 PID::PID(float motorRPMHighThreshold, float motorRPMLowThreshold) {
@@ -11,6 +13,7 @@ PID::PID(float motorRPMHighThreshold, float motorRPMLowThreshold) {
 }
 
 void PID::computePID(float expected_state, float measured_state) {
+    if(!inAutomatic) return; //Manual override
     auto now = chrono::steady_clock::now();
     double current_time = chrono::duration<double>(now.time_since_epoch()).count();
     double time_change = current_time - this->last_time;
@@ -76,3 +79,7 @@ void PID::setSampleTime(float NewSampleTime){
         sampleTime = (unsigned long) NewSampleTime;
     }
 }
+//Basic mode set function
+void setMode(int Mode){
+    inAutomatic = (Mode == AUTO);
+} 
