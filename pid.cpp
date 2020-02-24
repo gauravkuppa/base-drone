@@ -19,7 +19,7 @@ void PID::computePID(float expected_state, float measured_state) {
     {
         double error = expected_state - measured_state; //Setpoint - input/output
         this->err_sum += error;
-        double dErr = error - last_error;
+        double dErr = input - this->lastInput; //Leo: Do we have an input variable? I can add in the .h
 
         //Compute the PID Output
         float p, i, d;
@@ -28,7 +28,9 @@ void PID::computePID(float expected_state, float measured_state) {
         i = this->k_i * err_sum;
         d = this->k_d * dErr;
 
-        this->measured_state = p + i + d;        
+        this->measured_state = p + i - d; //Derivative kick: dErr/dr is equal to -Dinput/dt        
+        this->lastInput = this->input; //Save last variable's calculation
+        this->last_time = now; //Save last time 
 
         float filtered_d;
 
