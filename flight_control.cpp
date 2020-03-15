@@ -12,20 +12,34 @@ void motor_mixing_algo(float thrust, float roll, float pitch, float yaw) {
     motors[3] = thrust - roll - pitch + yaw;
 }
 
-void thrust_pid(float altitude) {
+float thrust_pid(float altitude, float input_k_p, float input_k_i, float input_k_d) {
     PID *pid = new PID(0, 1000);
-    pid->updatePID(100, altitude);
+    pid->setTunings(input_k_p, input_k_i, input_k_d);
+    pid->computePID(100, altitude);
+    return pid->measured_state;
 }
 
-void roll_pid(float roll) {
+float roll_pid(float roll, float input_k_p, float input_k_i, float input_k_d) {
+    PID *pid = new PID(0, 1000);
+    pid->setTunings(input_k_p, input_k_i, input_k_d);
+    pid->computePID(100, roll);
+    return pid->measured_state;
 
 }
 
-void pitch_pid(float pitch) {
+float pitch_pid(float pitch, float input_k_p, float input_k_i, float input_k_d) {
+    PID *pid = new PID(0, 1000);
+    pid->setTunings(input_k_p, input_k_i, input_k_d);
+    pid->computePID(100, pitch);
+    return pid->measured_state;
     
 }
 
-void yaw_pid(float yaw) {
+float yaw_pid(float yaw, float input_k_p, float input_k_i, float input_k_d) {
+    PID *pid = new PID(0, 1000);
+    pid->setTunings(input_k_p, input_k_i, input_k_d);
+    pid->computePID(100, yaw);
+    return pid->measured_state;
     
 }
 
