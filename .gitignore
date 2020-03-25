@@ -1,2 +1,10 @@
 test.cpp
 a.out
+*.shar
+/dbc/**
+/doc/**
+/projects/lpc40xx_cmpe30/**
+/projects/x86_sandbox/**
+/projects/lpc40xx_shared_sconscript
+/test/**
+/toolchains/**
