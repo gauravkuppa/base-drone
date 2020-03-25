@@ -18,7 +18,7 @@ float thrust_pid(float altitude, float input_k_p, float input_k_i, float input_k
     pid->computePID(100, altitude);
     return pid->measured_state;
 }
-this is why ut_k_i, float input_k_d) {
+float roll_pid(float roll, float input_k_p, float input_k_i, float input_k_d) {
     PID *pid = new PID(0, 1000);
     pid->setTunings(input_k_p, input_k_i, input_k_d);
     pid->computePID(100, roll);
