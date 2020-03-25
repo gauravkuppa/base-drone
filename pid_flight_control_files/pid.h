@@ -4,7 +4,9 @@ class PID{
         float k_p, k_i, k_d;
 
         double last_time;
-        float last_error;
+        float input; //Leo: added
+        float last_error; //Leo: Added
+        float lastInput;
         float err_sum;
         float sampleTime = 1000/200000;  // sampling once per 5 microseconds
         float last_filtered_error = NULL;
@@ -19,4 +21,5 @@ class PID{
         void computePID(float expected_state, float measured_state);
         void setTunings(float input_k_p, float input_k_i, float input_k_d);
         void setSampleTime(float NewSampleTime);
+        void setMode(int Mode);
 };

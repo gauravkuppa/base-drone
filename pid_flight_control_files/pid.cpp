@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <chrono>
 #include "pid.h"
-
+#define MAN 0 //Define if manual or in autonomous mode
+#define AUTO 1
+bool inAutomatic = false;
 using namespace std;
 
 PID::PID(float motorRPMHighThreshold, float motorRPMLowThreshold) {
@@ -11,6 +13,7 @@ PID::PID(float motorRPMHighThreshold, float motorRPMLowThreshold) {
 }
 
 void PID::computePID(float expected_state, float measured_state) {
+    if(!inAutomatic) return; //Manual override
     auto now = chrono::steady_clock::now();
     double current_time = chrono::duration<double>(now.time_since_epoch()).count();
     double time_change = current_time - this->last_time;
@@ -19,7 +22,7 @@ void PID::computePID(float expected_state, float measured_state) {
     {
         double error = expected_state - measured_state; //Setpoint - input/output
         this->err_sum += error;
-        double dErr = error - last_error;
+        double dErr = input - this->lastInput; //Leo: Do we have an input variable? I can add in the .h
 
         //Compute the PID Output
         float p, i, d;
@@ -28,7 +31,9 @@ void PID::computePID(float expected_state, float measured_state) {
         i = this->k_i * err_sum;
         d = this->k_d * dErr;
 
-        this->measured_state = p + i + d;        
+        this->measured_state = p + i - d; //Derivative kick: dErr/dr is equal to -Dinput/dt        
+        this->lastInput = this->input; //Save last variable's calculation
+        this->last_time = now; //Save last time 
 
         float filtered_d;
 
@@ -74,3 +79,7 @@ void PID::setSampleTime(float NewSampleTime){
         sampleTime = (unsigned long) NewSampleTime;
     }
 }
+//Basic mode set function
+void setMode(int Mode){
+    inAutomatic = (Mode == AUTO);
+} 
