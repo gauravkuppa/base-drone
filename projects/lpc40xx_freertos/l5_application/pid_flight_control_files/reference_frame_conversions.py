@@ -14,7 +14,7 @@ def body_to_world_translation(theta, reference_point, px, py):
     print(body)
     return body
 
-def body_to_world(theta, reference_point):
+def body_to_world_2d_rotation(theta, reference_point):
     radians = theta * (math.pi/180)
     rotation_matrix = np.array([
         [math.cos(radians), math.sin(radians)], 
@@ -24,6 +24,8 @@ def body_to_world(theta, reference_point):
     body = np.matmul(rotation_matrix,reference_point)
     print(body)
     return body
+
+
 
 def world_to_body(theta, reference_point):
     radians = theta * (math.pi/180)
@@ -36,14 +38,33 @@ def world_to_body(theta, reference_point):
     #print(body.shape)
     return body
 
-theta = 45
-'''reference = np.array([[3], [4]])
-reference1 = np.array([[4], [3]])'''
-reference2 = np.array([[4], [4]])
-reference3 = np.array([[2],[0]])
-px, py = 0,0
-'''print("reference point: (3,4)", world_to_body(theta, reference))
-print("reference point: (4,3)", world_to_body(theta, reference1))'''
-print("reference point: (4,4)", world_to_body(theta, reference2))
-print("reference point: (2,0)", world_to_body(theta, reference3))
-print("reference point: (4,4)", body_to_world(theta, reference2))
+
+def body_to_world_all(theta, reference, euler, px, py, pz):
+    # pose = position + rotation
+
+    # translation to desired position
+    reference = body_to_world_3d_translation(reference, px, py, pz)
+
+    # rotation to desired angles
+    reference = body_to_world_3d_rotation(reference, euler)
+
+def body_to_world_3d_translation(reference, px, py, pz):
+    pass
+
+def body_to_world_3d_rotation(reference, euler):
+    pass
+
+def main():
+    theta = 45
+    '''reference = np.array([[3], [4]])
+    reference1 = np.array([[4], [3]])'''
+    reference2 = np.array([[4], [4]])
+    reference3 = np.array([[2],[0]])
+    px, py = 0,0
+    '''print("reference point: (3,4)", world_to_body(theta, reference))
+    print("reference point: (4,3)", world_to_body(theta, reference1))'''
+    print("reference point: (4,4)", world_to_body(theta, reference2))
+    print("reference point: (2,0)", world_to_body(theta, reference3))
+    print("reference point: (4,4)", body_to_world_2d_rotation(theta, reference2))
+
+main()
