@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "delay.h": "c",
+        "sys_time.h": "c"
+    }
+}
