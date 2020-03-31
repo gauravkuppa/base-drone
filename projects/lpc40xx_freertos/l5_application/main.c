@@ -118,7 +118,7 @@ void watchdog_task(void *params) {
     
     vTaskDelay(500);
     uxBits = xEventGroupWaitBits(xEventGroup, BIT_1 | BIT_2 | BIT_3 | BIT_4, pdTRUE, pdFALSE, 1000 / portTICK_PERIOD_MS);
-    if ((uxBits & (BIT_1 | BIT_2)) == (BIT_1 | BIT_2)) {
+    if ((uxBits & (BIT_1 | BIT_2 | BIT_3 | BIT_4)) == (BIT_1 | BIT_2 | BIT_3 | BIT_4)) {
       // xEventGroupWaitBits() returned because both bits were set.
       fprintf(stderr, "all tasks are working\n");
 
@@ -129,10 +129,10 @@ void watchdog_task(void *params) {
       if ((uxBits & BIT_2) != (BIT_2)) {
         fprintf(stderr, "flight controller task is not working/suspended\n");
       }
-      if ((uxBits & BIT_2) != (BIT_2)) {
+      if ((uxBits & BIT_3) != (BIT_3)) {
         fprintf(stderr, "data logging task is not working/suspended\n");
       }
-      if ((uxBits & BIT_2) != (BIT_2)) {
+      if ((uxBits & BIT_4) != (BIT_4)) {
         fprintf(stderr, "sensor value communication is not working/suspended\n");
       }
     }
