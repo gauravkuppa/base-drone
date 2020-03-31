@@ -24,6 +24,10 @@ void sensor_values(void *params);
 
 int main(void) {
 
+  uart_lab__init(UART_2, 96000000, 9600);
+  gpio__construct_with_function(GPIO__PORT_2, 8, GPIO__FUNCTION_2);
+  gpio__construct_with_function(GPIO__PORT_2, 9, GPIO__FUNCTION_2);
+  // TODO: implement uart__enable_receive_interrupt(0);
   TaskHandle_t battery_monitor, quadcopter_flight_controller, data_logging, sensor_values, cli, watchdog;
   xTaskCreate(battery_monitor, "battery_monitor", 2048 / (* void), NULL, 6, &battery_monitor);
   xTaskCreate(quadcopter_flight_controller, "quadcopter_flight_controller", 4096 / (* void), NULL, 10, &battery_monitor);
@@ -64,32 +68,56 @@ void data_logging(void *params) {
 }
 void sensor_values(void *params) {
 
-  // implement I2C lab here
+  // TODO: implement reciever task here
 
   while(1) {
     uxBits = xEventGroupSetBits(xEventGroup, BIT_4);
   }
 }
 
+// TODO: implement this task or (code) on RPi side
+void rpi_sender_task(void *p) {
+  char number_as_string[16] = {0};
+  while (true) {
+    const int number = rand();
+    sprintf(number_as_string, "%i", number);
+    // Send one char at a time to the other board including terminating
+    NULL char
+    for (int i = 0; i <= strlen(number_as_string); i++) {
+    uart_lab__polled_put(0, number_as_string[i]);
+    printf("Sent: %c\n", number_as_string[i]);
+    }
+    printf("Sent: %i over UART to the other board\n", number);
+    vTaskDelay(3000);
+  }
+}
+
+
+void uart__init(uart_number_e uart, uint32_t peripheral_clock, uint32_t baud_rate) {
+  // Refer to LPC User manual and setup the register bits correctly
+  // The first page of the UART chapter has good instructions
+  // a) Power on Peripheral
+  // b) Setup DLL, DLM, FDR, LCR registers
+  // using UART2
+  // LPC_SC->PCONP |= (1 << 23);
+  lpc_peripheral__turn_on_power_to(LPC_PERIPHERAL__UART2);
+  uint16_t div = peripheral_clock / (16 * baud_rate);
+  LPC_UART2->LCR |= (1 << 7);
+  LPC_UART2->DLM |= (div >> 8 & 0xFF);
+  LPC_UART2->DLL |= (div >> 0 & 0xFF);
+  LPC_UART2->FDR = (1 << 4);
+  LPC_UART2->LCR &= ~(1 << 7);
+  LPC_UART2->LCR &= ~(1 << 3);
+  LPC_UART2->LCR |= (3 << 0); // WLS
+  LPC_UART2->LCR &= ~(1 << 2); // two stop bits
+}
+
 void watchdog_task(void *params) {
   fprintf(stderr, "In\n");
   while (1) {
-    // ...
-    // vTaskDelay(200);
-    // We either should vTaskDelay, but for better robustness, we should
-    // block on xEventGroupWaitBits() for slightly more than 100ms because
-    // of the expected production rate of the producer() task and its check-in
-    // fprintf(stderr, "In while\n");
-    /**if (xEventGroupWaitBits(xEventGroup, BIT_1 | BIT_2, pdTRUE, pdFALSE,
-                            205 / portTICK_PERIOD_MS)) { // TODO: read up on port tick
-      // if at least a bit is set
-      // TODO
-      fprintf(stderr, "At least one bit is set\n");
-      fprintf(stderr, "uxBits: %d\n", uxBits);
-
-    }**/
+    
     vTaskDelay(500);
-    uxBits = xEventGroupWaitBits(xEventGroup, BIT_1 | BIT_2 | BIT_3 | BIT_4, pdTRUE, pdFALSE, 205 / portTICK_PERIOD_MS);
+    uxBits = xEventGroupWaitBits(xEventGroup, BIT_1 | BIT_2 | BIT_3 | BIT_4, pdTRUE, pdFALSE, 1000 / portTICK_PERIOD_MS);
     if ((uxBits & (BIT_1 | BIT_2)) == (BIT_1 | BIT_2)) {
       // xEventGroupWaitBits() returned because both bits were set.
       fprintf(stderr, "all tasks are working\n");
