@@ -110,8 +110,8 @@ void rpi_sender_task(void *p) {
     // Send one char at a time to the other board including terminating
     NULL char
     for (int i = 0; i <= strlen(number_as_string); i++) {
-    uart_lab__polled_put(0, number_as_string[i]);
-    printf("Sent: %c\n", number_as_string[i]);
+      uart_lab__polled_put(0, number_as_string[i]);
+      printf("Sent: %c\n", number_as_string[i]);
     }
     printf("Sent: %i over UART to the other board\n", number);
     vTaskDelay(3000);
