@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "flight_control.h": "c"
+        "flight_control.h": "c",
+        "cstddef": "c",
+        "*.cuh": "c"
     }
 }

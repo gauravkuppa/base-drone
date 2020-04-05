@@ -11,7 +11,7 @@
 #include "sj2_cli.h"
 #include "event_groups.h"
 #include "uart_lab.h"
-
+#include "flight_control.h"
 
 #define BIT_1 (1 << 1) // battery monitor task 
 #define BIT_2 (1 << 2) // flight controller task
@@ -20,6 +20,7 @@
 
 static EventGroupHandle_t xEventGroup;
 static EventBits_t uxBits;
+static QueueHandle_t stateSpaceQueue;
 
 void battery_monitor(void *params);
 void quadcopter_flight_controller(void *params);
@@ -29,20 +30,20 @@ void write_file_using_fatfs_pi(acceleration__axis_data_s *sensor_value);
 
 int main(void) {
 
-  uart_lab__init(UART_2, 96000000, 9600);
+  uart_lab__init(UART_2, 96000000, 115200);
   gpio__construct_with_function(GPIO__PORT_2, 8, GPIO__FUNCTION_2);
   gpio__construct_with_function(GPIO__PORT_2, 9, GPIO__FUNCTION_2);
   // TODO: implement uart__enable_receive_interrupt(0);
   TaskHandle_t battery_monitor, quadcopter_flight_controller, data_logging, sensor_values, cli, watchdog;
   xTaskCreate(battery_monitor, "battery_monitor", 2048 / (void *), NULL, 6, &battery_monitor);
   xTaskCreate(quadcopter_flight_controller, "quadcopter_flight_controller", 4096 / (void *), NULL, 10, &battery_monitor);
-  xTaskCreate(data_logging, "data_logging", 2048 / (void*), NULL, 6, &data_logging);
+  xTaskCreate(data_logging, "data_logging", 2048 / (void *), NULL, 6, &data_logging);
   xTaskCreate(sensor_values, "sensor_values", 2048 / (void *), NULL, 8, &sensor_values);
   xTaskCreate(sj2_cli__init, "cli", 2048 / sizeof(void *), NULL, 2, &cli);
   xTaskCreate(watchdog_task, "watchdog", 2048 / sizeof(void *), NULL, 10, &watchdog);
 
   xEventGroup = xEventGroupCreate();
-
+  stateSpaceQueue = xQueueCreate(10, sizeof(state_space));
 
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler
                          // runs out of memory and fails
@@ -98,9 +99,59 @@ void write_file_using_fatfs_pi(acceleration__axis_data_s *sensor_value) {
 
 void sensor_values(void *params) {
 
-  // TODO: implement reciever task here
+  // No markers being sent
+  // 15-state vector [x, y, z, roll, pitch, yaw, x', y', z', roll', pitch', yaw', x'', y'', z'']
+  // each state has two bytes, MSB sent first
+  // 30 bytes total
 
-  while(1) {
+  while (1) {
+    char number_as_string[32] = {0};
+    int counter = 0;
+    char byte = 0;
+    uart_lab__get_char_from_queue(&byte, 100000);
+    printf("Received: %c\n", byte);
+    
+    
+    if ('\0' == byte) {
+      number_as_string[counter] = '\0';
+      state_space *current;
+      current->x = number_as_string[0] << 8 & number_as_string[1] << 0;
+      current->y = number_as_string[2] << 8 & number_as_string[3] << 0;
+      current->z = number_as_string[4] << 8 & number_as_string[5] << 0;
+      current->roll = number_as_string[6] << 8 & number_as_string[7] << 0;
+      current->pitch = number_as_string[8] << 8 & number_as_string[9] << 0;
+      current->yaw = number_as_string[10] << 8 & number_as_string[11] << 0;
+      current->x_vel = number_as_string[12] << 8 & number_as_string[13] << 0;
+      current->y_vel = number_as_string[14] << 8 & number_as_string[15] << 0;
+      current->z_vel = number_as_string[16] << 8 & number_as_string[17] << 0;
+      current->d_roll = number_as_string[18] << 8 & number_as_string[19] << 0;
+      current->d_pitch = number_as_string[20] << 8 & number_as_string[21] << 0;
+      current->d_yaw = number_as_string[22] << 8 & number_as_string[23] << 0;
+      current->x_acc = number_as_string[24] << 8 & number_as_string[25] << 0;
+      current->y_acc = number_as_string[26] << 8 & number_as_string[27] << 0;
+      current->z_acc = number_as_string[28] << 8 & number_as_string[29] << 0;
+      xQueueSend(stateSpaceQueue, current, portMAX_DELAY);
+      counter = 0;
+      printf("Received this number from the other board: %s\n", number_as_string);
+    /**} else if ('p' == byte) { // denotes position
+
+    } else if ('e' == byte) { // denotes euler angles
+    
+    } else if ('v' == byte) { // denotes velocity
+    
+    } else if ('d' == byte) { // denotes d_euler angles
+    
+    } else if ('a' == byte) { // denotes acceleration**/
+    
+    } else {
+      // We have not yet received the NULL '\0' char, so buffer the data
+      number_as_string[counter] = byte;
+      if (counter < 32) {
+        counter++;
+      } else {
+        counter = 0;
+      }
+    }
     uxBits = xEventGroupSetBits(xEventGroup, BIT_4);
   }
 }
