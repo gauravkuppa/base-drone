@@ -4,8 +4,3 @@ struct Quaternion {
   float c;
   float d;
 };
-
-struct Point {
-  float x;
-  float y;
-};

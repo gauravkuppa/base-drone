@@ -1,0 +1,5 @@
+{
+    "files.associations": {
+        "flight_control.h": "c"
+    }
+}
