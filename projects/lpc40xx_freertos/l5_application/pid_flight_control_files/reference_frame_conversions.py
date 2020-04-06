@@ -3,7 +3,7 @@ import math
 
 def body_to_world_all_rotation_mat(reference_point, euler, p):
     
-    yaw, pitch, roll = euler
+    roll, pitch, yaw = euler
 
     roll = roll * (math.pi/180)
     pitch = pitch * (math.pi/180)
@@ -23,7 +23,7 @@ def body_to_world_all_rotation_mat(reference_point, euler, p):
                     [0, sin_roll, cos_roll]])
     
     composed_rotation_zyx = np.matmul(np.matmul(rot_z, rot_y), rot_x)
-    print("before composed_rotation_zyx", composed_rotation_zyx.shape, composed_rotation_zyx)
+    # print("before composed_rotation_zyx", composed_rotation_zyx.shape, composed_rotation_zyx)
 
     # Translation
     p = np.asarray(p)
@@ -32,7 +32,7 @@ def body_to_world_all_rotation_mat(reference_point, euler, p):
     perspective = np.array([0,0,0,1])
     composed_rotation_zyx = np.vstack((composed_rotation_zyx, perspective)) # stack perspective matrix on bottom of matrix
     reference_point.append(1)
-    print("after composed_rotation_zyx", composed_rotation_zyx.shape, composed_rotation_zyx) 
+    #print("after composed_rotation_zyx", composed_rotation_zyx.shape, composed_rotation_zyx) 
     
 
 
@@ -48,11 +48,8 @@ def body_to_world_all_rotation_mat(reference_point, euler, p):
 def body_to_world_all_quaternion(reference_point, euler, p):
 
     px, py, pz = p
-    yaw, pitch, roll = euler
-
-    # translation of reference point to desired point p
+    roll, pitch, yaw = euler
     reference_point.append(1) # add 1 to reference point
-    reference_point = body_to_world_3d_translation(reference_point, px, py, pz)
     
     # the following implementation is implemented for rotations in order: ZYX [Trait-Bryan Angles]
     # convert euler angles to corresponding quaternion
@@ -63,9 +60,16 @@ def body_to_world_all_quaternion(reference_point, euler, p):
     
     # compose yaw, pitch, roll quaternions
     composed_rotation_zyx = quaternion_multiply(quaternion_multiply(quaternion_yaw, quaternion_pitch), quaternion_roll)
+    # print("composed rotation zyx:", composed_rotation_zyx)
     
     # perform vector rotation with formula v' = q * v * q_star
     reference_prime = body_to_world_3d_rotation(reference_point, composed_rotation_zyx)
+    
+    # translation of reference point to desired origin at point p
+    reference_prime[1] += px
+    reference_prime[2] += py
+    reference_prime[3] += pz
+     
     
     return reference_prime
 
@@ -75,16 +79,6 @@ def is_unit_length(vector):
         sum += val ** 2
 
     return sum == 1
-
-def body_to_world_3d_translation(reference_point, px, py, pz):
-    # implement extension of reference to be a 4 x 1 vector
-    translation_matrix = np.array([[1, 0, 0, px],
-                                    [0, 1, 0, py], 
-                                    [0, 0, 1, pz],
-                                    [0, 0, 0, 1]])
-    print("translation_matrix:", translation_matrix)
-    reference_point = np.matmul(translation_matrix, reference_point)
-    return reference_point
 
 def body_to_world_3d_rotation(reference_point, quaternion): # float * rotational_axis, float theta, float * current_vector
 
@@ -149,8 +143,8 @@ print(body_to_world_all_quaternion([2, 1, 1], [90, 90, 90]))
 print(body_to_world_all_rotation_mat([2, 1, 1], [90, 90, 90]))
 print(body_to_world_all_quaternion([2, 1, 1], [45, 90, 90]))
 print(body_to_world_all_rotation_mat([2, 1, 1], [45, 90, 90]))'''
-print(body_to_world_all_quaternion([1, 1, 1], [20, 30, 90], [3, 5, 7]))
-print(body_to_world_all_rotation_mat([1, 1, 1], [20, 30, 90], [3, 5, 7]))
+print(body_to_world_all_quaternion([1, 2, 3], [20, 30, 90], [3, 5, 7]))
+print(body_to_world_all_rotation_mat([1, 2, 3], [20, 30, 90], [3, 5, 7]))
 '''print(body_to_world_all_quaternion([1, 1, 1], [40, 70, 110]))
 print(body_to_world_all_rotation_mat([1, 1, 1], [40, 70, 110]))'''
 #body_to_world_all_quaternion([1, 1, 1], [80, 10, 120])
