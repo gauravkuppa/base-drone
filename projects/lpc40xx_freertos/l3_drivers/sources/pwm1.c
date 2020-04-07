@@ -59,3 +59,21 @@ void pwm1__set_duty_cycle(pwm1_channel_e pwm1_channel,
 
   LPC_PWM1->LER |= (1 << (pwm1_channel + 1)); ///< Enable Latch Register
 }
+
+void pin_config_escs() {
+  // config ESC0
+  LPC_IOCON->P2_0 &= ~(3 << 0);
+  LPC_IOCON->P2_0 |= (1 << 0);
+  
+  // config ESC1
+  LPC_IOCON->P2_1 &= ~(3 << 0);
+  LPC_IOCON->P2_1 |= (1 << 0);
+
+  // config ESC2
+  LPC_IOCON->P2_2 &= ~(3 << 0);
+  LPC_IOCON->P2_2 |= (1 << 0);
+
+  // config ESC3
+  LPC_IOCON->P2_4 &= ~(3 << 0);
+  LPC_IOCON->P2_4 |= (1 << 0);
+}

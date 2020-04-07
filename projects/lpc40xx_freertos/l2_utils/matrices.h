@@ -8,10 +8,10 @@ From https://github.com/nhomble/yasML
 extern "C" {
 #endif
 /* current representation of a matrix in my mind  */
-typedef struct Matrix{
-	int rows;
-	int columns;
-	double **numbers;
+typedef struct Matrix {
+  int rows;
+  int columns;
+  double **numbers;
 } Matrix;
 
 Matrix *identity(int length);

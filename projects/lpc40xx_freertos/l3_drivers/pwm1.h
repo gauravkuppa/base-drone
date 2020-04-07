@@ -18,3 +18,4 @@ typedef enum {
 void pwm1__init_single_edge(uint32_t frequency_in_hertz);
 void pwm1__set_duty_cycle(pwm1_channel_e pwm1_channel,
                           float duty_cycle_in_percent);
+void pin_config_escs();

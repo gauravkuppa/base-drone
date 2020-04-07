@@ -1,7 +1,7 @@
 #include "pid.h"
-#include <time.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <time.h>
 #define MAN 0 // Define if manual or in autonomous mode
 #define AUTO 1
 bool inAutomatic = false;
@@ -21,7 +21,7 @@ void computePID(PID *pid, float expected_state, float measured_state) {
   if (!inAutomatic)
     return; // Manual override
   clock_t now = clock();
-  double current_time = ((double) now) / CLOCKS_PER_SEC;
+  double current_time = ((double)now) / CLOCKS_PER_SEC;
   double time_change = current_time - pid->last_time;
 
   if (time_change >= pid->sampleTime) {

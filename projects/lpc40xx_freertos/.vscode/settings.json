@@ -7,6 +7,9 @@
         "complex": "cpp",
         "stdlib.h": "c",
         "math.h": "c",
-        "pid.h": "c"
+        "pid.h": "c",
+        "chrono": "c",
+        "clock.h": "c",
+        "pwm1.h": "c"
     }
 }
