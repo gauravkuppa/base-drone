@@ -1,9 +1,9 @@
-struct Quaternion {
-  float a;
-  float b;
-  float c;
-  float d;
-};
+typedef struct {
+  float w;
+  float x;
+  float y;
+  float z;
+} quaternion;
 
 typedef struct {
   float x, y, z;

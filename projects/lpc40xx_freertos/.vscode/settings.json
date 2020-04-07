@@ -2,6 +2,11 @@
     "files.associations": {
         "flight_control.h": "c",
         "cstddef": "c",
-        "*.cuh": "c"
+        "*.cuh": "c",
+        "matrices.h": "c",
+        "complex": "cpp",
+        "stdlib.h": "c",
+        "math.h": "c",
+        "pid.h": "c"
     }
 }

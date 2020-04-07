@@ -1,6 +1,8 @@
 #include "flight_control.h"
 #include "pid.h"
+#include <math.h>
 
+#define M_PI 3.14159265358979323846
 // TODO: Motor
 // TODO: create makefile
 float motors[4];
@@ -49,90 +51,91 @@ float yaw_pid(float yaw, float input_k_p, float input_k_i, float input_k_d) {
   return pid->measured_state;
 }
 
-/**RotationMatrix * euler_to_rot_mat(float roll, float pitch, float yaw) {
+quaternion * body_to_world_quaternion(float * reference, float * euler, float * p) {
+  float px = p[0];
+  float py = p[1];
+  float pz = p[2];
+  float roll = euler[0];
+  float pitch = euler[1];
+  float yaw = euler[2];
+  int rotational_axis_roll[3] = {1, 0, 0};
+  int rotational_axis_pitch[3] = {0, 1, 0};
+  int rotational_axis_yaw[3] = {0, 0, 1};
+
+  // remember to add 1 to the end of reference_point when passing it in
+  float reference_point[4];
+  reference_point[0] = reference[0];
+  reference_point[1] = reference[1];
+  reference_point[2] = reference[2];
+  reference_point[3] = 1.0;
+
+  quaternion * quaternion_yaw = euler_angle_to_quaternion(roll, &rotational_axis_yaw);
+  quaternion * quaternion_pitch = euler_angle_to_quaternion(pitch, &rotational_axis_pitch);
+  quaternion * quaternion_roll = euler_angle_to_quaternion(yaw, &rotational_axis_roll);
+
+  quaternion * composed_yaw_pitch = quaternion_multiply(quaternion_yaw, quaternion_pitch);
+  quaternion * composed_rotation_zyx = quaternion_multiply(composed_yaw_pitch, quaternion_roll);
+
+  quaternion * reference_prime = body_to_world_3d_rotation(&reference_point, composed_rotation_zyx);
+
+  reference_prime->x += px;
+  reference_prime->y += py;
+  reference_prime->z += pz;
+
+  return reference_prime;
+}
+
+float * body_to_world_3d_rotation(float * reference, quaternion * q) {
+  quaternion * q_star;
+  quaternion * vector;
+
+  q_star->w = q->w;
+  q_star->x = -1 * q->x;
+  q_star->y = -1 * q->y;
+  q_star->z = -1 * q->z;
+
+  vector->w = 0;
+  vector->x = reference[0];
+  vector->y = reference[1];
+  vector->z = reference[2];
+
+  quaternion * q_vector = quaternion_multiply(q, vector);
+  quaternion * reference_prime = quaternion_multiply(q_vector, q_star);
+
+  return reference_prime;
 
 }
 
-Quaternion * rot_mat_to_quat(RotationMatrix * rot_mat) {
+quaternion * quaternion_multiply(quaternion * q1, quaternion * q0) {
+  float w0 = q0->w;
+  float x0 = q0->x;
+  float y0 = q0->y;
+  float z0 = q0->z;
+  float w1 = q1->w;
+  float x1 = q1->x;
+  float y1 = q1->y;
+  float z1 = q1->z;
+  
+  quaternion * q0q1;
+  q0q1->w = -x1 * x0 - y1 * y0 - z1 * z0 + w1 * w0;
+  q0q1->x = x1 * w0 + y1 * z0 - z1 * y0 + w1 * x0;
+  q0q1->y = -x1 * z0 + y1 * w0 + z1 * x0 + w1 * y0;
+  q0q1->z = x1 * y0 - y1 * x0 + z1 * w0 + w1 * z0;
 
+  return q0q1;
 }
 
-RotationMatrix * _world_to_body_translation(RotationMatrix* rot_mat) {
+quaternion * euler_angle_to_quaternion(float euler_angle, int * rotational_axis) {
+  float theta = euler_angle * (M_PI/180);
 
-}**/
+  quaternion * q;
+  q->w = (float)cos(theta/2);
+  q->x = (float)sin(theta/2) * rotational_axis[0];
+  q->y = (float)sin(theta/2) * rotational_axis[1];
+  q->z = (float)sin(theta/2) * rotational_axis[2];
 
-/**Quaternion * _world_to_body_rotation(float * rotational_axis, float theta,
-float * current_vector) {
-
-
-
-    Quaternion *q;
-    Quaternion *q_star;
-    Quaternion *vector;
-    Quaternion *q_vector;
-    Quaternion *q_vector_q_star;
-
-    // TODO: implement lookup table for cos, sin
-
-    q->a = cos(theta/2);
-    q->b = sin(theta/2)*rotational_axis[0];
-    q->c = sin(theta/2)*rotational_axis[1];
-    q->d = sin(theta/2)*rotational_axis[2];
-
-    q_star->a = cos(theta/2);
-    q_star->b = -1 * sin(theta/2)*rotational_axis[0];
-    q_star->c = -1 * sin(theta/2)*rotational_axis[1];
-    q_star->d = -1 * sin(theta/2)*rotational_axis[2];
-
-    vector->a = 0;
-    vector->b = current_vector[0];
-    vector->c = current_vector[1];
-    vector->d = current_vector[2];
-
-    // calculate q * vector * q_star ( quarternion multiplication )
-
-    **
-     *
-    (Q1 * Q2).a = (a1a2 - b1b2 - c1c2 - d1d2)
-    (Q1 * Q2).b = (a1b2 + b1a2 + c1d2 - d1c2)
-    (Q1 * Q2).c = (a1c2 - b1d2 + c1a2 + d1b2)
-    (Q1 * Q2).d = (a1d2 + b1c2 - c1b2 + d1a2)
-     *
-    **
-
-    q_vector->a = q->a*vector->a - q->b*vector->b - q->c*vector->c -
-q->d*vector->d; q_vector->b = q->a*vector->b + q->b*vector->a + q->c*vector->d -
-q->d*vector->c; q_vector->c = q->a*vector->c - q->b*vector->d + q->c*vector->a +
-q->d*vector->b; q_vector->d = q->a*vector->d + q->b*vector->c - q->c*vector->b +
-q->d*vector->a;
-
-
-    q_vector_q_star->a = q_vector->a*vector->a - q_vector->b*vector->b -
-q_vector->c*vector->c - q_vector->d*vector->d; q_vector_q_star->b =
-q_vector->a*vector->b + q_vector->b*vector->a + q_vector->c*vector->d -
-q_vector->d*vector->c; q_vector_q_star->c = q_vector->a*vector->c -
-q_vector->b*vector->d + q_vector->c*vector->a + q_vector->d*vector->b;
-    q_vector_q_star->d = q_vector->a*vector->d + q_vector->b*vector->c -
-q_vector->c*vector->b + q_vector->d*vector->a;
-
-    return q_vector_q_star;
-
+  return q;
 }
 
-Point * world_to_body(float theta, Point * reference_point, float px, float py)
-{
-    // main
 
-    // translation to match origins
-
-    // https://www.youtube.com/watch?v=B9jDCj581Os
-
-    Point * body;
-    float rotation_matrix[[]] = [[cos(theta), sin(theta), px], [-sin(theta),
-cos(theta), py], [0, 0, 1]]; body = rotation_matrix*reference_point; return
-body;
-
-
-
-}**/
 void main() { return; }
