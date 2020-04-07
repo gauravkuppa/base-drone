@@ -1,5 +1,5 @@
 #include "pid.h"
-#include <chrono>
+#include <time.h>
 #include <stdbool.h>
 #include <stdio.h>
 #define MAN 0 // Define if manual or in autonomous mode
@@ -20,9 +20,8 @@ void PID_init(PID *pid, float motorRPMHighThreshold,
 void computePID(PID *pid, float expected_state, float measured_state) {
   if (!inAutomatic)
     return; // Manual override
-  auto now = chrono::steady_clock::now();
-  double current_time =
-      chrono::duration<double>(now.time_since_epoch()).count();
+  clock_t now = clock();
+  double current_time = ((double) now) / CLOCKS_PER_SEC;
   double time_change = current_time - pid->last_time;
 
   if (time_change >= pid->sampleTime) {

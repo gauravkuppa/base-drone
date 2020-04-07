@@ -3,7 +3,9 @@
 #include <stdlib.h>
 /**#include <sys/dos.h>
 #include <sys/time.h>**/
-#include "../../l2_utils/matrices.h"
+#include <time.h>
+
+//#include "../../l2_utils/matrices.h"
 
 /**
  * gcc test.c /usr/lib/matrices.o -lm
@@ -23,7 +25,22 @@
 int main()
 {
     
-    double disp[3][2] = {
+    clock_t start, end;
+    double time_in_seconds, time_in_ms, convert_clock_to_sec;
+
+    start = clock();
+    for(int i = 0; i < 4; i++) {
+        printf("Hello World: it is index %d\n", i);
+    }
+    end = clock();
+    convert_clock_to_sec = ((double) start ) / CLOCKS_PER_SEC;
+    time_in_seconds = ((double) (end - start)) / CLOCKS_PER_SEC;
+    time_in_ms = time_in_seconds * 1000;
+    
+    printf("clock time in sec: %lf\n", time_in_seconds);
+    printf("clock time in ms: %lf\n", time_in_ms);
+    printf("clock start: %lf", convert_clock_to_sec);
+    /**double disp[3][2] = {
         {10, 12},
         {14, 15},
         {15, 6}
@@ -43,7 +60,7 @@ int main()
         free(disp[i]);
     }
     free(disp);
-	print(m);
+	print(m);**/
     
     /**struct timeval start, stop;
     double secs = 0;

@@ -51,7 +51,7 @@ float yaw_pid(float yaw, float input_k_p, float input_k_i, float input_k_d) {
   return pid->measured_state;
 }
 
-quaternion * body_to_world_quaternion(float * reference, float * euler, float * p) {
+float * body_to_world_quaternion(float * reference, float * euler, float * p) {
   float px = p[0];
   float py = p[1];
   float pz = p[2];
@@ -82,7 +82,11 @@ quaternion * body_to_world_quaternion(float * reference, float * euler, float * 
   reference_prime->y += py;
   reference_prime->z += pz;
 
-  return reference_prime;
+  float * vector;
+  vector[0] = reference_prime->x;
+  vector[1] = reference_prime->y;
+  vector[2] = reference_prime->z;
+  return vector;
 }
 
 float * body_to_world_3d_rotation(float * reference, quaternion * q) {
