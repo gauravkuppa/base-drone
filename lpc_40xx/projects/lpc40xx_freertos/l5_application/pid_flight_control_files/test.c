@@ -4,6 +4,7 @@
 /**#include <sys/dos.h>
 #include <sys/time.h>**/
 #include <time.h>
+#include <string.h>
 
 //#include "../../l2_utils/matrices.h"
 
@@ -25,7 +26,25 @@ milli_seconds);
 }**/
 int main() {
 
-  clock_t start, end;
+
+    time_t rawtime;
+    struct tm *info;
+    time( &rawtime );
+    info = localtime( &rawtime );
+    char * time = asctime(info);
+    char time_data[32];
+    snprintf(time_data, 25, "%s", time);
+    //strcpy(time_data, time);
+    printf("time: %s", time);
+    printf("time_data: %s", time_data);
+    int len = strlen(time_data);
+    printf("num: %d\n", len);
+    if( time_data[len-1] == '\n' ) {
+        time_data[len-1] = 0;
+        printf("Current local time and date: %s", time_data);
+    }
+    return 0;
+  /**clock_t start, end;
   double time_in_seconds, time_in_ms, convert_clock_to_sec;
 
   start = clock();
@@ -39,7 +58,7 @@ int main() {
 
   printf("clock time in sec: %lf\n", time_in_seconds);
   printf("clock time in ms: %lf\n", time_in_ms);
-  printf("clock start: %lf", convert_clock_to_sec);
+  printf("clock start: %lf", convert_clock_to_sec);**/
   /**double disp[3][2] = {
       {10, 12},
       {14, 15},

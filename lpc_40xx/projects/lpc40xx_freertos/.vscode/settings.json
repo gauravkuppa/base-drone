@@ -10,6 +10,7 @@
         "pid.h": "c",
         "chrono": "c",
         "clock.h": "c",
-        "pwm1.h": "c"
+        "pwm1.h": "c",
+        "ctime": "cpp"
     }
 }

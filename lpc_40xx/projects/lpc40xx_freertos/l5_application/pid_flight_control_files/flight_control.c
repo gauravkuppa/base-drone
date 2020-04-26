@@ -12,15 +12,15 @@ float * motor_mixing_algo(float thrust, float roll, float pitch, float yaw) {
   return motors;
 }
 
-float thrust_pid(float reference_altitude, float estimated_altitude, float input_k_p, float input_k_i, float input_k_d) {
+float run_pid(float reference_value, float estimated_value, float input_k_p, float input_k_i, float input_k_d) {
   PID *pid;
   PID_init(pid, 0, 1000 * 14.7); // high RPM = kV * battery Voltage [a little
                                  // lower than actual value]
   setTunings(pid, input_k_p, input_k_i, input_k_d);
-  computePID(pid, reference_altitude, estimated_altitude);
+  computePID(pid, reference_value, estimated_value);
   return pid->measured_state;
 }
-float roll_pid(float reference_roll, float estimated_roll, float input_k_p, float input_k_i, float input_k_d) {
+/**float roll_pid(float reference_roll, float estimated_roll, float input_k_p, float input_k_i, float input_k_d) {
   PID *pid;
   PID_init(pid, 0, 1000 * 14.7); // high RPM = kV * battery Voltage [a little
                                  // lower than actual value]
@@ -45,7 +45,7 @@ float yaw_pid(float reference_yaw, float estimated_yaw, float input_k_p, float i
   setTunings(pid, input_k_p, input_k_i, input_k_d);
   computePID(pid, reference_yaw, estimated_yaw);
   return pid->measured_state;
-}
+}**/
 
 float *body_to_world_quaternion(float *reference, float *euler, float *p) {
   float px = p[0];
