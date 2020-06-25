@@ -7,10 +7,10 @@ import rospy
 
 from sensor_msgs.msg import Imu
 
-
+#NOTE IMU IS ON 0x68
 # TODO: figure out these messages
-I2C_address = 0x00 #placeholder
-POWER_MAN = 0x00 #placeholder
+#I2C_address = 0x68 #placeholder
+#POWER_MAN = 0x00 #placeholder
 
 ######## https://github.com/OSUrobotics/mpu_6050_driver/blob/master/src/mpu_6050_driver/registers.py #######
 PWR_MGMT_1 = 0x6b
