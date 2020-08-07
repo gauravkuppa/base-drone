@@ -1,0 +1,12 @@
+'''
+Todo: Subscribe to our imumodule, gpsmodule, and mag_driver messages
+'''
+import rospy
+from std.msgs.msg import String
+
+def listener():
+    rospy.init_node('navsat_transform_node', anonymous = True)
+    rospy.Subscriber('navsat', String, callback) #gps module
+    rospy.Subscriber('imu/data', String, callback) #might be different, requires output from imu_tools after processing imu and mag driver
+    rospy.Subscriber() #some type of odometry message
+
